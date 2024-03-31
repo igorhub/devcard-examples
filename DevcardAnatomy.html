@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html class="no-js" lang=""><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Anatomy of a devcard</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="favicon.png" rel="icon" type="image/png">
+        <link href="css.css" rel="stylesheet">
+    </head>
+    <body>
+
+      <div id="-devcard-status-bar"><code>build: 192ms</code> <code>run: 2ms</code></div>
+<h2 id="-devcard-title">Anatomy of a devcard</h2>
+
+<script type="text/javascript">
+  url = "/dc/devcard-examples/DevcardAnatomy";
+clientId = "cl-1713540387220100-3955783380";
+clientKind = "ClientDevcard";
+projectName = "devcard-examples";
+devcardName = "DevcardAnatomy";
+scrollPosition = 0;
+
+/**
+ * Once the website loads, we want to apply listeners and connect to websocket
+ * */
+window.onload = function () {
+    if (clientId == "") {
+        return;
+    }
+
+    // Check if the browser supports WebSocket
+    if (!window["WebSocket"]) {
+        alert("Websockets are not supported");
+        return;
+    }
+
+    conn = new WebSocket("ws://" + document.location.host + "/ws?clientId=" + clientId + "&clientKind=" + clientKind + "&url=" + url + "&projectName=" + projectName + "&devcardName=" + devcardName);
+
+    conn.addEventListener("close", (event) => {
+        console.log(url)
+        appendStatusBarContent(" <code class=\"err\">connection lost: <a href=\"javascript:location.reload()\">reload</a></code>")
+    });
+
+    conn.onmessage = function(rawMsg) {
+        msg = JSON.parse(rawMsg.data)
+        dispatchMessage(msg)
+    }
+};
+
+dispatchMessage = function(msg) {
+    switch (msg.msgType) {
+    case "clear":
+        clearDevcard();
+        break;
+    case "setTitle":
+        setTitle(msg.title);
+        break;
+    case "appendCell":
+        appendCell(msg.cellId)
+        setCellContent(msg.cellId, msg.html)
+        break;
+    case "appendToCell":
+        appendToCell(msg.cellId, msg.html)
+        break;
+    case "setCellContent":
+        setCellContent(msg.cellId, msg.html)
+        break;
+    case "setStatusBarContent":
+        setStatusBarContent(msg.html)
+        break;
+    case "saveScrollPosition":
+        scrollPosition = window.pageYOffset
+        break;
+    case "restoreScrollPosition":
+        window.scrollTo(0, scrollPosition);
+        break;
+    case "jump":
+        document.getElementById(msg.id).scrollIntoView();
+        break;
+    default:
+        alert("unsupported message type:" + msg.msgType);
+        break;
+    }
+}
+
+clearDevcard = function() {
+    document.getElementById("-devcard-cells").innerHTML = ""
+    document.getElementById("-devcard-stdout").innerHTML = ""
+    document.getElementById("-devcard-stderr").innerHTML = ""
+}
+
+setTitle = function(title) {
+    e = document.getElementById("-devcard-title")
+    e.innerHTML = '<a style="text-decoration:none" href="javascript:openInEditor()">📂</a> ' +title
+}
+
+appendCell = function(cellId) {
+    e = document.getElementById(cellId)
+    if (e != null) {
+        return
+    }
+    e = document.getElementById("-devcard-cells")
+    cell = "<div id=\"" + cellId + "\"></div>"
+    e.innerHTML = e.innerHTML + cell
+}
+
+setCellContent = function(cellId, html) {
+    e = document.getElementById(cellId)
+    e.innerHTML = html
+}
+
+appendToCell = function(cellId, html) {
+    e = document.getElementById(cellId)
+    e.innerHTML = e.innerHTML + html
+}
+
+setStatusBarContent = function(html) {
+    e = document.getElementById("-devcard-status-bar")
+    e.innerHTML = html
+}
+
+appendStatusBarContent = function(html) {
+    e = document.getElementById("-devcard-status-bar")
+    e.innerHTML = e.innerHTML + html
+}
+
+generateDebugCode = function() {
+    fetch("/debug/"+projectName+"/"+devcardName)
+        .then((response) => response.text())
+        .then((text) => {
+            alert(text)
+        })
+}
+
+openInEditor = function() {
+    fetch("/open/"+projectName+"/"+devcardName)
+        .then((response) => response.text())
+        .then((text) => {
+            if (text != "") {
+                alert(text)
+            }
+        })
+}
+
+</script>
+
+<div id="-devcard-cells"><div id="b0"><p>A devcard is produced by running a devcard-producing function. Such a function must follow the following criteria:</p>
+
+<ul>
+<li>Its name begins with <code>Devcard</code>.</li>
+<li>It takes a single argument, which is a pointer to <code>devcard.Devcard</code>.</li>
+<li>It returns nothing.</li>
+</ul>
+</div><div id="b1"><p>For example:</p>
+</div><div id="b2"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-kd">func</span> <span class="-devcard-hl-nf">DevcardAnatomy</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">dc</span> <span class="-devcard-hl-o">*</span><span class="-devcard-hl-nx">devcard</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Devcard</span><span class="-devcard-hl-p">)</span> <span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">SetTitle</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"Anatomy of a devcard"</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-c1">// ...
+</span></span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-c1"></span><span class="-devcard-hl-p">}</span></span></span></code></pre></div><div id="b3"><p>All devcard-producing functions defined in your code will be collected in the <a href="list.html">devcards list</a> in order of appearance.</p>
+</div><div id="b4"><h3 id="devcard-s-content">Devcard’s content</h3>
+</div><div id="b5"><p>A devcard is essentially a list of cells. Some 
+cells are rendered as paragraphs of text, others as code blocks or 
+images. Here are the first four cells of this very devcard:</p>
+</div><div id="b6"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-kd">func</span> <span class="-devcard-hl-nf">DevcardAnatomy</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">dc</span> <span class="-devcard-hl-o">*</span><span class="-devcard-hl-nx">devcard</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Devcard</span><span class="-devcard-hl-p">)</span> <span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">SetTitle</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"Anatomy of a devcard"</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Md</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"A devcard is produced by running a devcard-producing function. "</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-s">"Such a function must follow the following criteria:\n"</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-s">"* Its name begins with `Devcard`.\n"</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-s">"* It takes a single argument, which is a pointer to `devcard.Devcard`.\n"</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-s">"* It returns nothing.\n"</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Md</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"For example:"</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Mono</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">devcard</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">WithHighlighting</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"go"</span><span class="-devcard-hl-p">)</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-s">`</span><span class="-devcard-hl-s">func DevcardAnatomy(dc *devcard.Devcard) </span><span class="-devcard-hl-s">{</span><span class="-devcard-hl-s">
+</span></span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-s">		dc.SetTitle("Anatomy of a devcard")
+</span></span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-s">	
+</span></span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-s">	// ...
+</span></span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-s">}</span><span class="-devcard-hl-s">`</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Md</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"All devcard-producing functions defined in your code will be collected in the [devcards list](/dc/devcard-examples) in order of appearance."</span><span class="-devcard-hl-p">)</span>
+</span></span></code></pre></div><div id="b7"><p>The next four devcards 
+describe various types of cells in detail. You are encouraged to play 
+with them as you go along, perhaps using <a href="DevcardFoobar.html">this devcard</a> as a scratch pad.</p>
+</div></div>
+
+<div id="-devcard-stdout"></div>
+
+<div id="-devcard-stderr"></div>
+
+<div id="-devcard-navigation"><p>❬ <a href="DevcardIntro.html">prev: Getting started</a> | <a href="list.html">top: examples</a> | <a href="DevcardTextCells.html">next: Text cells</a> ❭</p>
+</div>
+
+
+    
+
+
+</body></html>

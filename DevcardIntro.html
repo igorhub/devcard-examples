@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html class="no-js" lang=""><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Getting started</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="favicon.png" rel="icon" type="image/png">
+        <link href="css.css" rel="stylesheet">
+    </head>
+    <body>
+
+      <div id="-devcard-status-bar"><code>build: 178ms</code> <code>run: 2ms</code></div>
+<h2 id="-devcard-title">Getting started</h2>
+
+<script type="text/javascript">
+  url = "/dc/devcard-examples/DevcardIntro";
+clientId = "cl-1713536659336511-3779191222";
+clientKind = "ClientDevcard";
+projectName = "devcard-examples";
+devcardName = "DevcardIntro";
+scrollPosition = 0;
+
+/**
+ * Once the website loads, we want to apply listeners and connect to websocket
+ * */
+window.onload = function () {
+    if (clientId == "") {
+        return;
+    }
+
+    // Check if the browser supports WebSocket
+    if (!window["WebSocket"]) {
+        alert("Websockets are not supported");
+        return;
+    }
+
+    conn = new WebSocket("ws://" + document.location.host + "/ws?clientId=" + clientId + "&clientKind=" + clientKind + "&url=" + url + "&projectName=" + projectName + "&devcardName=" + devcardName);
+
+    conn.addEventListener("close", (event) => {
+        console.log(url)
+        appendStatusBarContent(" <code class=\"err\">connection lost: <a href=\"javascript:location.reload()\">reload</a></code>")
+    });
+
+    conn.onmessage = function(rawMsg) {
+        msg = JSON.parse(rawMsg.data)
+        dispatchMessage(msg)
+    }
+};
+
+dispatchMessage = function(msg) {
+    switch (msg.msgType) {
+    case "clear":
+        clearDevcard();
+        break;
+    case "setTitle":
+        setTitle(msg.title);
+        break;
+    case "appendCell":
+        appendCell(msg.cellId)
+        setCellContent(msg.cellId, msg.html)
+        break;
+    case "appendToCell":
+        appendToCell(msg.cellId, msg.html)
+        break;
+    case "setCellContent":
+        setCellContent(msg.cellId, msg.html)
+        break;
+    case "setStatusBarContent":
+        setStatusBarContent(msg.html)
+        break;
+    case "saveScrollPosition":
+        scrollPosition = window.pageYOffset
+        break;
+    case "restoreScrollPosition":
+        window.scrollTo(0, scrollPosition);
+        break;
+    case "jump":
+        document.getElementById(msg.id).scrollIntoView();
+        break;
+    default:
+        alert("unsupported message type:" + msg.msgType);
+        break;
+    }
+}
+
+clearDevcard = function() {
+    document.getElementById("-devcard-cells").innerHTML = ""
+    document.getElementById("-devcard-stdout").innerHTML = ""
+    document.getElementById("-devcard-stderr").innerHTML = ""
+}
+
+setTitle = function(title) {
+    e = document.getElementById("-devcard-title")
+    e.innerHTML = '<a style="text-decoration:none" href="javascript:openInEditor()">📂</a> ' +title
+}
+
+appendCell = function(cellId) {
+    e = document.getElementById(cellId)
+    if (e != null) {
+        return
+    }
+    e = document.getElementById("-devcard-cells")
+    cell = "<div id=\"" + cellId + "\"></div>"
+    e.innerHTML = e.innerHTML + cell
+}
+
+setCellContent = function(cellId, html) {
+    e = document.getElementById(cellId)
+    e.innerHTML = html
+}
+
+appendToCell = function(cellId, html) {
+    e = document.getElementById(cellId)
+    e.innerHTML = e.innerHTML + html
+}
+
+setStatusBarContent = function(html) {
+    e = document.getElementById("-devcard-status-bar")
+    e.innerHTML = html
+}
+
+appendStatusBarContent = function(html) {
+    e = document.getElementById("-devcard-status-bar")
+    e.innerHTML = e.innerHTML + html
+}
+
+generateDebugCode = function() {
+    fetch("/debug/"+projectName+"/"+devcardName)
+        .then((response) => response.text())
+        .then((text) => {
+            alert(text)
+        })
+}
+
+openInEditor = function() {
+    fetch("/open/"+projectName+"/"+devcardName)
+        .then((response) => response.text())
+        .then((text) => {
+            if (text != "") {
+                alert(text)
+            }
+        })
+}
+
+</script>
+
+<div id="-devcard-cells"><div id="b0"><p>One good way to get started with devcards is to clone the <code>devcard-examples</code> repo and to tinker with it. This guide describes the process step by step.</p>
+</div><div id="b1"><p>First, clone the repo:</p>
+</div><div id="b2"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl">git clone https://github.com/igorhub/devcard-examples</span></span></code></pre></div><div id="b3"><p>Second, install the devcards web app:</p>
+</div><div id="b4"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl">go install github.com/igorhub/devcard/cmd/devcards@latest</span></span></code></pre></div><div id="b5"><p>Now, cd into <code>devcard-examples</code> and start the app:</p>
+</div><div id="b6"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nb">cd</span> devcard-examples
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">devcards</span></span></code></pre></div><div id="b7"><p>Open up your browser, put it alongside your editor, and go to <a href="http://127.0.0.1:50051/">http://127.0.0.1:50051</a>. Click <a href="list.html">devcard-examples</a> and inspect the example cards one by one.</p>
+</div><div id="b8"><p>Note: on the first run, the app will suggest to 
+create an initial config file. While not required, having a config file 
+will open up some possibilities, such as remembering your projects or 
+changing the color scheme.</p>
+</div></div>
+
+<div id="-devcard-stdout"></div>
+
+<div id="-devcard-stderr"></div>
+
+<div id="-devcard-navigation"><p>❬ <a href="DevcardFoobar.html">prev: <em>scratch</em></a> | <a href="list.html">top: examples</a> | <a href="DevcardAnatomy.html">next: Anatomy of a devcard</a> ❭</p>
+</div>
+
+
+    
+
+
+</body></html>

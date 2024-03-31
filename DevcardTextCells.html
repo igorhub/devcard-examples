@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html class="no-js" lang=""><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Text cells</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="favicon.png" rel="icon" type="image/png">
+        <link href="css.css" rel="stylesheet">
+    </head>
+    <body>
+
+      <div id="-devcard-status-bar"><code>build: 198ms</code> <code>run: 2ms</code></div>
+<h2 id="-devcard-title">Text cells</h2>
+
+<script type="text/javascript">
+  url = "/dc/devcard-examples/DevcardTextCells";
+clientId = "cl-1713540387713336-2947881748";
+clientKind = "ClientDevcard";
+projectName = "devcard-examples";
+devcardName = "DevcardTextCells";
+scrollPosition = 0;
+
+/**
+ * Once the website loads, we want to apply listeners and connect to websocket
+ * */
+window.onload = function () {
+    if (clientId == "") {
+        return;
+    }
+
+    // Check if the browser supports WebSocket
+    if (!window["WebSocket"]) {
+        alert("Websockets are not supported");
+        return;
+    }
+
+    conn = new WebSocket("ws://" + document.location.host + "/ws?clientId=" + clientId + "&clientKind=" + clientKind + "&url=" + url + "&projectName=" + projectName + "&devcardName=" + devcardName);
+
+    conn.addEventListener("close", (event) => {
+        console.log(url)
+        appendStatusBarContent(" <code class=\"err\">connection lost: <a href=\"javascript:location.reload()\">reload</a></code>")
+    });
+
+    conn.onmessage = function(rawMsg) {
+        msg = JSON.parse(rawMsg.data)
+        dispatchMessage(msg)
+    }
+};
+
+dispatchMessage = function(msg) {
+    switch (msg.msgType) {
+    case "clear":
+        clearDevcard();
+        break;
+    case "setTitle":
+        setTitle(msg.title);
+        break;
+    case "appendCell":
+        appendCell(msg.cellId)
+        setCellContent(msg.cellId, msg.html)
+        break;
+    case "appendToCell":
+        appendToCell(msg.cellId, msg.html)
+        break;
+    case "setCellContent":
+        setCellContent(msg.cellId, msg.html)
+        break;
+    case "setStatusBarContent":
+        setStatusBarContent(msg.html)
+        break;
+    case "saveScrollPosition":
+        scrollPosition = window.pageYOffset
+        break;
+    case "restoreScrollPosition":
+        window.scrollTo(0, scrollPosition);
+        break;
+    case "jump":
+        document.getElementById(msg.id).scrollIntoView();
+        break;
+    default:
+        alert("unsupported message type:" + msg.msgType);
+        break;
+    }
+}
+
+clearDevcard = function() {
+    document.getElementById("-devcard-cells").innerHTML = ""
+    document.getElementById("-devcard-stdout").innerHTML = ""
+    document.getElementById("-devcard-stderr").innerHTML = ""
+}
+
+setTitle = function(title) {
+    e = document.getElementById("-devcard-title")
+    e.innerHTML = '<a style="text-decoration:none" href="javascript:openInEditor()">📂</a> ' +title
+}
+
+appendCell = function(cellId) {
+    e = document.getElementById(cellId)
+    if (e != null) {
+        return
+    }
+    e = document.getElementById("-devcard-cells")
+    cell = "<div id=\"" + cellId + "\"></div>"
+    e.innerHTML = e.innerHTML + cell
+}
+
+setCellContent = function(cellId, html) {
+    e = document.getElementById(cellId)
+    e.innerHTML = html
+}
+
+appendToCell = function(cellId, html) {
+    e = document.getElementById(cellId)
+    e.innerHTML = e.innerHTML + html
+}
+
+setStatusBarContent = function(html) {
+    e = document.getElementById("-devcard-status-bar")
+    e.innerHTML = html
+}
+
+appendStatusBarContent = function(html) {
+    e = document.getElementById("-devcard-status-bar")
+    e.innerHTML = e.innerHTML + html
+}
+
+generateDebugCode = function() {
+    fetch("/debug/"+projectName+"/"+devcardName)
+        .then((response) => response.text())
+        .then((text) => {
+            alert(text)
+        })
+}
+
+openInEditor = function() {
+    fetch("/open/"+projectName+"/"+devcardName)
+        .then((response) => response.text())
+        .then((text) => {
+            if (text != "") {
+                alert(text)
+            }
+        })
+}
+
+</script>
+
+<div id="-devcard-cells"><div id="b0"><p>As said before, a devcard is essentially a list of cells. The most basic type of a cell is a markdown cell.</p>
+</div><div id="b1"><h3 id="markdown-cell">Markdown cell</h3>
+</div><div id="b2"><p>You can add a markdown cell to a devcard with the following code:</p>
+</div><div id="b3"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Md</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"I am a *markdown* **cell**!"</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b4"><p>I am a <em>markdown</em> <strong>cell</strong>!</p>
+</div><div id="b5"><h3 id="devcard-md-arguments">Devcard.Md arguments</h3>
+</div><div id="b6"><p><code>dc.Md</code> accepts variable number of arguments. The arguments are converted to strings and concatenated:</p>
+</div><div id="b7"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Md</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"This cell is made from "</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">3</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-s">" pieces."</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b8"><p>This cell is made from <code>3</code> pieces.</p>
+</div><div id="b9"><h3 id="append">Append</h3>
+</div><div id="b10"><p>You may use <code>dc.Append</code> to append one or more piece to the bottom cell of the devcard:</p>
+</div><div id="b11"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Md</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"This cell"</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Append</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"is made from "</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">4</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Append</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"pieces."</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b12"><p>This cell is made from <code>4</code> pieces.</p>
+</div><div id="b13"><h3 id="html-cell">HTML cell</h3>
+</div><div id="b14"><p>When markdown doesn’t cover your needs, you may drop down to an HTML cell:</p>
+</div><div id="b15"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Html</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">`</span><span class="-devcard-hl-s">&lt;div style="color: purple; font-size: 2rem;"&gt;*PURPLE TEXT*&lt;/div&gt;</span><span class="-devcard-hl-s">`</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b16"><div style="color: purple; font-size: 2rem;">*PURPLE TEXT*</div><br></div></div>
+
+<div id="-devcard-stdout"></div>
+
+<div id="-devcard-stderr"></div>
+
+<div id="-devcard-navigation"><p>❬ <a href="DevcardAnatomy.html">prev: Anatomy of a devcard</a> | <a href="list.html">top: examples</a> | <a href="DevcardMonospacedCells.html">next: Monospaced cells</a> ❭</p>
+</div>
+
+
+    
+
+
+</body></html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="no-js" lang=""><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Custom cell</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="favicon.png" rel="icon" type="image/png">
+        <link href="css.css" rel="stylesheet">
+    </head>
+    <body>
+
+      <div id="-devcard-status-bar"><code>build: 254ms</code> <code>run: 39ms</code></div>
+<h2 id="-devcard-title">Custom cell</h2>
+
+<script type="text/javascript">
+  url = "/dc/devcard-examples/DevcardCustomCell";
+clientId = "cl-1713540389345178-1988722545";
+clientKind = "ClientDevcard";
+projectName = "devcard-examples";
+devcardName = "DevcardCustomCell";
+scrollPosition = 0;
+
+/**
+ * Once the website loads, we want to apply listeners and connect to websocket
+ * */
+window.onload = function () {
+    if (clientId == "") {
+        return;
+    }
+
+    // Check if the browser supports WebSocket
+    if (!window["WebSocket"]) {
+        alert("Websockets are not supported");
+        return;
+    }
+
+    conn = new WebSocket("ws://" + document.location.host + "/ws?clientId=" + clientId + "&clientKind=" + clientKind + "&url=" + url + "&projectName=" + projectName + "&devcardName=" + devcardName);
+
+    conn.addEventListener("close", (event) => {
+        console.log(url)
+        appendStatusBarContent(" <code class=\"err\">connection lost: <a href=\"javascript:location.reload()\">reload</a></code>")
+    });
+
+    conn.onmessage = function(rawMsg) {
+        msg = JSON.parse(rawMsg.data)
+        dispatchMessage(msg)
+    }
+};
+
+dispatchMessage = function(msg) {
+    switch (msg.msgType) {
+    case "clear":
+        clearDevcard();
+        break;
+    case "setTitle":
+        setTitle(msg.title);
+        break;
+    case "appendCell":
+        appendCell(msg.cellId)
+        setCellContent(msg.cellId, msg.html)
+        break;
+    case "appendToCell":
+        appendToCell(msg.cellId, msg.html)
+        break;
+    case "setCellContent":
+        setCellContent(msg.cellId, msg.html)
+        break;
+    case "setStatusBarContent":
+        setStatusBarContent(msg.html)
+        break;
+    case "saveScrollPosition":
+        scrollPosition = window.pageYOffset
+        break;
+    case "restoreScrollPosition":
+        window.scrollTo(0, scrollPosition);
+        break;
+    case "jump":
+        document.getElementById(msg.id).scrollIntoView();
+        break;
+    default:
+        alert("unsupported message type:" + msg.msgType);
+        break;
+    }
+}
+
+clearDevcard = function() {
+    document.getElementById("-devcard-cells").innerHTML = ""
+    document.getElementById("-devcard-stdout").innerHTML = ""
+    document.getElementById("-devcard-stderr").innerHTML = ""
+}
+
+setTitle = function(title) {
+    e = document.getElementById("-devcard-title")
+    e.innerHTML = '<a style="text-decoration:none" href="javascript:openInEditor()">📂</a> ' +title
+}
+
+appendCell = function(cellId) {
+    e = document.getElementById(cellId)
+    if (e != null) {
+        return
+    }
+    e = document.getElementById("-devcard-cells")
+    cell = "<div id=\"" + cellId + "\"></div>"
+    e.innerHTML = e.innerHTML + cell
+}
+
+setCellContent = function(cellId, html) {
+    e = document.getElementById(cellId)
+    e.innerHTML = html
+}
+
+appendToCell = function(cellId, html) {
+    e = document.getElementById(cellId)
+    e.innerHTML = e.innerHTML + html
+}
+
+setStatusBarContent = function(html) {
+    e = document.getElementById("-devcard-status-bar")
+    e.innerHTML = html
+}
+
+appendStatusBarContent = function(html) {
+    e = document.getElementById("-devcard-status-bar")
+    e.innerHTML = e.innerHTML + html
+}
+
+generateDebugCode = function() {
+    fetch("/debug/"+projectName+"/"+devcardName)
+        .then((response) => response.text())
+        .then((text) => {
+            alert(text)
+        })
+}
+
+openInEditor = function() {
+    fetch("/open/"+projectName+"/"+devcardName)
+        .then((response) => response.text())
+        .then((text) => {
+            if (text != "") {
+                alert(text)
+            }
+        })
+}
+
+</script>
+
+<div id="-devcard-cells"><div id="b0"><p>Sometimes you may want something more sophisticated than builtin cells. For that, you can use a custom cell.</p>
+</div><div id="b1"><p>Suppose you want a cell that shows a bar chart. Let’s start by making a type for it:</p>
+</div><div id="b2"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-kd">type</span> <span class="-devcard-hl-nx">chartCell</span> <span class="-devcard-hl-kd">struct</span> <span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">devcard</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">CustomCell</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">data</span>    <span class="-devcard-hl-p">[</span><span class="-devcard-hl-p">]</span><span class="-devcard-hl-nx">datum</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">tempDir</span> <span class="-devcard-hl-kt">string</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-p">}</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-kd">type</span> <span class="-devcard-hl-nx">datum</span> <span class="-devcard-hl-kd">struct</span> <span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">name</span>  <span class="-devcard-hl-kt">string</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">value</span> <span class="-devcard-hl-kt">int</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-p">}</span></span></span></code></pre></div><div id="b3"><p>Note the embedded <code>devcard.CustomCell</code> in <code>chartCell</code>. It implements all three methods of the <code>Cell</code> interface: <code>Type</code>, <code>Append</code>, and <code>Erase</code>. The implementations of <code>Append</code> and <code>Erase</code> do nothing but panic when called; you need to provide your own implementations if you want to use <code>dc.Append</code> or <code>dc.Erase</code>. For this chart cell, this is not required—we’re going to implement our own appending function:</p>
+</div><div id="b4"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-c1">// addBar adds a bar to the right of the chart cell.
+</span></span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-c1"></span><span class="-devcard-hl-kd">func</span> <span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">c</span> <span class="-devcard-hl-o">*</span><span class="-devcard-hl-nx">chartCell</span><span class="-devcard-hl-p">)</span> <span class="-devcard-hl-nf">addBar</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">name</span> <span class="-devcard-hl-kt">string</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">value</span> <span class="-devcard-hl-kt">int</span><span class="-devcard-hl-p">)</span> <span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">c</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">data</span> <span class="-devcard-hl-p">=</span> <span class="-devcard-hl-nb">append</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">c</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">data</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">datum</span><span class="-devcard-hl-p">{</span><span class="-devcard-hl-nx">name</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">value</span><span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-p">}</span></span></span></code></pre></div><div id="b5"><p>To render a custom cell, it first needs to be casted it into one of the builtin cells: <code>HTMLCell</code>, <code>MarkdownCell</code>, <code>MonospaceCell</code>, <code>ValueCell</code>, <code>AnnotatedValueCell</code>, <code>ImageCell</code>, or <code>ErrorCell</code>. For that, we need to implement <code>Cast</code> method:</p>
+</div><div id="b6"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-kd">func</span> <span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">cc</span> <span class="-devcard-hl-o">*</span><span class="-devcard-hl-nx">chartCell2</span><span class="-devcard-hl-p">)</span> <span class="-devcard-hl-nf">Cast</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-p">)</span> <span class="-devcard-hl-nx">devcard</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Cell</span> <span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">f</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">err</span> <span class="-devcard-hl-o">:=</span> <span class="-devcard-hl-nx">os</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">CreateTemp</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">cc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">tempDir</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-s">"*.png"</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-k">if</span> <span class="-devcard-hl-nx">err</span> <span class="-devcard-hl-o">!=</span> <span class="-devcard-hl-kc">nil</span> <span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">		<span class="-devcard-hl-k">return</span> <span class="-devcard-hl-nx">devcard</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">NewErrorCell</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"chartCell error"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">err</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-p">}</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-k">defer</span> <span class="-devcard-hl-nx">f</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Close</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">err</span> <span class="-devcard-hl-p">=</span> <span class="-devcard-hl-nx">cc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">graph</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-p">)</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Render</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">chart</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">PNG</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">f</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-k">if</span> <span class="-devcard-hl-nx">err</span> <span class="-devcard-hl-o">!=</span> <span class="-devcard-hl-kc">nil</span> <span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">		<span class="-devcard-hl-k">return</span> <span class="-devcard-hl-nx">devcard</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">NewErrorCell</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"chartCell error"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">err</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-p">}</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">img</span> <span class="-devcard-hl-o">:=</span> <span class="-devcard-hl-nx">devcard</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">NewImageCell</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">cc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">tempDir</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">img</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Append</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">f</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Name</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-p">)</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-k">return</span> <span class="-devcard-hl-nx">img</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-p">}</span></span></span></code></pre></div><div id="b7"><p>Now the chart cell is ready. Let’s add it to the devcard:</p>
+</div><div id="b8"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">chart</span> <span class="-devcard-hl-o">:=</span> <span class="-devcard-hl-o">&amp;</span><span class="-devcard-hl-nx">chartCell</span><span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">tempDir</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">TempDir</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">data</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-p">[</span><span class="-devcard-hl-p">]</span><span class="-devcard-hl-nx">datum</span><span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">		<span class="-devcard-hl-p">{</span><span class="-devcard-hl-s">"Monday"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">17</span><span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">		<span class="-devcard-hl-p">{</span><span class="-devcard-hl-s">"Tuesday"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">56</span><span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">		<span class="-devcard-hl-p">{</span><span class="-devcard-hl-s">"Wednesday"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">37</span><span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">		<span class="-devcard-hl-p">{</span><span class="-devcard-hl-s">"Thursday"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">39</span><span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">		<span class="-devcard-hl-p">{</span><span class="-devcard-hl-s">"Friday"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">29</span><span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-p">}</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Custom</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">chart</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b9"><figure>
+  <img src="img/chart1.png" alt="/tmp/devcards-repo-devcard-examples-1938388495/_transient_/temp-image-1479012972.png">
+  <figcaption></figcaption>
+</figure>
+</div><div id="b10"><p>Since we opted out of imlementing <code>Append</code> method, we need to let the devcards app know when we’re altering our cell. It’s done by calling <code>dc.Update</code>:</p>
+</div><div id="b11"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">chart</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">add</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"Saturday"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">38</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">chart</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">add</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"Sunday"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">30</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Update</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">chart</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b12"><figure>
+  <img src="img/chart2.png" alt="/tmp/devcards-repo-devcard-examples-1938388495/_transient_/temp-image-2538227728.png">
+  <figcaption></figcaption>
+</figure>
+</div></div>
+
+<div id="-devcard-stdout"></div>
+
+<div id="-devcard-stderr"></div>
+
+<div id="-devcard-navigation"><p>❬ <a href="DevcardImageCell.html">prev: Image cell</a> | <a href="list.html">top: examples</a> | <a href="DevcardCurrent.html">next: Current devcard</a> ❭</p>
+</div>
+
+
+    
+
+
+</body></html>

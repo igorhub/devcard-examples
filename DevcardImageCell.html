@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html class="no-js" lang=""><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Image cell</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="favicon.png" rel="icon" type="image/png">
+        <link href="css.css" rel="stylesheet">
+    </head>
+    <body>
+
+      <div id="-devcard-status-bar"><code>build: 209ms</code> <code>run: 6ms</code></div>
+<h2 id="-devcard-title">Image cell</h2>
+
+<script type="text/javascript">
+  url = "/dc/devcard-examples/DevcardImageCell";
+clientId = "cl-1713540388758434-3944516979";
+clientKind = "ClientDevcard";
+projectName = "devcard-examples";
+devcardName = "DevcardImageCell";
+scrollPosition = 0;
+
+/**
+ * Once the website loads, we want to apply listeners and connect to websocket
+ * */
+window.onload = function () {
+    if (clientId == "") {
+        return;
+    }
+
+    // Check if the browser supports WebSocket
+    if (!window["WebSocket"]) {
+        alert("Websockets are not supported");
+        return;
+    }
+
+    conn = new WebSocket("ws://" + document.location.host + "/ws?clientId=" + clientId + "&clientKind=" + clientKind + "&url=" + url + "&projectName=" + projectName + "&devcardName=" + devcardName);
+
+    conn.addEventListener("close", (event) => {
+        console.log(url)
+        appendStatusBarContent(" <code class=\"err\">connection lost: <a href=\"javascript:location.reload()\">reload</a></code>")
+    });
+
+    conn.onmessage = function(rawMsg) {
+        msg = JSON.parse(rawMsg.data)
+        dispatchMessage(msg)
+    }
+};
+
+dispatchMessage = function(msg) {
+    switch (msg.msgType) {
+    case "clear":
+        clearDevcard();
+        break;
+    case "setTitle":
+        setTitle(msg.title);
+        break;
+    case "appendCell":
+        appendCell(msg.cellId)
+        setCellContent(msg.cellId, msg.html)
+        break;
+    case "appendToCell":
+        appendToCell(msg.cellId, msg.html)
+        break;
+    case "setCellContent":
+        setCellContent(msg.cellId, msg.html)
+        break;
+    case "setStatusBarContent":
+        setStatusBarContent(msg.html)
+        break;
+    case "saveScrollPosition":
+        scrollPosition = window.pageYOffset
+        break;
+    case "restoreScrollPosition":
+        window.scrollTo(0, scrollPosition);
+        break;
+    case "jump":
+        document.getElementById(msg.id).scrollIntoView();
+        break;
+    default:
+        alert("unsupported message type:" + msg.msgType);
+        break;
+    }
+}
+
+clearDevcard = function() {
+    document.getElementById("-devcard-cells").innerHTML = ""
+    document.getElementById("-devcard-stdout").innerHTML = ""
+    document.getElementById("-devcard-stderr").innerHTML = ""
+}
+
+setTitle = function(title) {
+    e = document.getElementById("-devcard-title")
+    e.innerHTML = '<a style="text-decoration:none" href="javascript:openInEditor()">📂</a> ' +title
+}
+
+appendCell = function(cellId) {
+    e = document.getElementById(cellId)
+    if (e != null) {
+        return
+    }
+    e = document.getElementById("-devcard-cells")
+    cell = "<div id=\"" + cellId + "\"></div>"
+    e.innerHTML = e.innerHTML + cell
+}
+
+setCellContent = function(cellId, html) {
+    e = document.getElementById(cellId)
+    e.innerHTML = html
+}
+
+appendToCell = function(cellId, html) {
+    e = document.getElementById(cellId)
+    e.innerHTML = e.innerHTML + html
+}
+
+setStatusBarContent = function(html) {
+    e = document.getElementById("-devcard-status-bar")
+    e.innerHTML = html
+}
+
+appendStatusBarContent = function(html) {
+    e = document.getElementById("-devcard-status-bar")
+    e.innerHTML = e.innerHTML + html
+}
+
+generateDebugCode = function() {
+    fetch("/debug/"+projectName+"/"+devcardName)
+        .then((response) => response.text())
+        .then((text) => {
+            alert(text)
+        })
+}
+
+openInEditor = function() {
+    fetch("/open/"+projectName+"/"+devcardName)
+        .then((response) => response.text())
+        .then((text) => {
+            if (text != "") {
+                alert(text)
+            }
+        })
+}
+
+</script>
+
+<div id="-devcard-cells"><div id="b0"><p>Image cells allow you to use images.</p>
+</div><div id="b1"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Image</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"img/wallhaven-0qy15n.jpg"</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b2"><figure>
+  <img src="img/1.jpeg" alt="/tmp/devcards-repo-devcard-examples-1994228840/_transient_/temp-image-2407125735.jpg">
+  <figcaption></figcaption>
+</figure>
+</div><div id="b3"><p>An image can be defined in two ways: by using a path to an image file, or by using an <code>image.Image</code> instance. Similarly to annotated value cells, an annotation may be attached to an image:</p>
+</div><div id="b4"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-kd">var</span> <span class="-devcard-hl-nx">img</span> <span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Image</span> <span class="-devcard-hl-p">=</span> <span class="-devcard-hl-nf">stripes</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Image</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"Path to an image"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-s">"img/red-pandas.jpg"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-s">"image.Image instance"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">img</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b5"><figure>
+  <img src="img/2.jpeg" alt="/tmp/devcards-repo-devcard-examples-1994228840/_transient_/temp-image-1637236758.jpg">
+  <figcaption>Path to an image</figcaption>
+</figure>
+<figure>
+  <img src="img/3.png" alt="/tmp/devcards-repo-devcard-examples-1994228840/_transient_/temp-image-2950952184.png">
+  <figcaption>image.Image instance</figcaption>
+</figure>
+</div></div>
+
+<div id="-devcard-stdout"></div>
+
+<div id="-devcard-stderr"></div>
+
+<div id="-devcard-navigation"><p>❬ <a href="DevcardMonospacedCells.html">prev: Monospaced cells</a> | <a href="list.html">top: examples</a> | <a href="DevcardCustomCell.html">next: Custom cell</a> ❭</p>
+</div>
+
+
+    
+
+
+</body></html>

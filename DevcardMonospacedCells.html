@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="no-js" lang=""><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Monospaced cells</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="favicon.png" rel="icon" type="image/png">
+        <link href="css.css" rel="stylesheet">
+    </head>
+    <body>
+
+      <div id="-devcard-status-bar"><code>build: 251ms</code> <code>run: 2ms</code></div>
+<h2 id="-devcard-title">Monospaced cells</h2>
+
+<script type="text/javascript">
+  url = "/dc/devcard-examples/DevcardMonospacedCells";
+clientId = "cl-1713540388280219-557478111";
+clientKind = "ClientDevcard";
+projectName = "devcard-examples";
+devcardName = "DevcardMonospacedCells";
+scrollPosition = 0;
+
+/**
+ * Once the website loads, we want to apply listeners and connect to websocket
+ * */
+window.onload = function () {
+    if (clientId == "") {
+        return;
+    }
+
+    // Check if the browser supports WebSocket
+    if (!window["WebSocket"]) {
+        alert("Websockets are not supported");
+        return;
+    }
+
+    conn = new WebSocket("ws://" + document.location.host + "/ws?clientId=" + clientId + "&clientKind=" + clientKind + "&url=" + url + "&projectName=" + projectName + "&devcardName=" + devcardName);
+
+    conn.addEventListener("close", (event) => {
+        console.log(url)
+        appendStatusBarContent(" <code class=\"err\">connection lost: <a href=\"javascript:location.reload()\">reload</a></code>")
+    });
+
+    conn.onmessage = function(rawMsg) {
+        msg = JSON.parse(rawMsg.data)
+        dispatchMessage(msg)
+    }
+};
+
+dispatchMessage = function(msg) {
+    switch (msg.msgType) {
+    case "clear":
+        clearDevcard();
+        break;
+    case "setTitle":
+        setTitle(msg.title);
+        break;
+    case "appendCell":
+        appendCell(msg.cellId)
+        setCellContent(msg.cellId, msg.html)
+        break;
+    case "appendToCell":
+        appendToCell(msg.cellId, msg.html)
+        break;
+    case "setCellContent":
+        setCellContent(msg.cellId, msg.html)
+        break;
+    case "setStatusBarContent":
+        setStatusBarContent(msg.html)
+        break;
+    case "saveScrollPosition":
+        scrollPosition = window.pageYOffset
+        break;
+    case "restoreScrollPosition":
+        window.scrollTo(0, scrollPosition);
+        break;
+    case "jump":
+        document.getElementById(msg.id).scrollIntoView();
+        break;
+    default:
+        alert("unsupported message type:" + msg.msgType);
+        break;
+    }
+}
+
+clearDevcard = function() {
+    document.getElementById("-devcard-cells").innerHTML = ""
+    document.getElementById("-devcard-stdout").innerHTML = ""
+    document.getElementById("-devcard-stderr").innerHTML = ""
+}
+
+setTitle = function(title) {
+    e = document.getElementById("-devcard-title")
+    e.innerHTML = '<a style="text-decoration:none" href="javascript:openInEditor()">📂</a> ' +title
+}
+
+appendCell = function(cellId) {
+    e = document.getElementById(cellId)
+    if (e != null) {
+        return
+    }
+    e = document.getElementById("-devcard-cells")
+    cell = "<div id=\"" + cellId + "\"></div>"
+    e.innerHTML = e.innerHTML + cell
+}
+
+setCellContent = function(cellId, html) {
+    e = document.getElementById(cellId)
+    e.innerHTML = html
+}
+
+appendToCell = function(cellId, html) {
+    e = document.getElementById(cellId)
+    e.innerHTML = e.innerHTML + html
+}
+
+setStatusBarContent = function(html) {
+    e = document.getElementById("-devcard-status-bar")
+    e.innerHTML = html
+}
+
+appendStatusBarContent = function(html) {
+    e = document.getElementById("-devcard-status-bar")
+    e.innerHTML = e.innerHTML + html
+}
+
+generateDebugCode = function() {
+    fetch("/debug/"+projectName+"/"+devcardName)
+        .then((response) => response.text())
+        .then((text) => {
+            alert(text)
+        })
+}
+
+openInEditor = function() {
+    fetch("/open/"+projectName+"/"+devcardName)
+        .then((response) => response.text())
+        .then((text) => {
+            if (text != "") {
+                alert(text)
+            }
+        })
+}
+
+</script>
+
+<div id="-devcard-cells"><div id="b0"><p>There are 4 types of monospace cells: <code>MonospaceCell</code>, <code>ValueCell</code>, <code>AnnotatedValueCell</code>, and <code>SourceCell</code>.</p>
+</div><div id="b1"><h3 id="monospace-cell">Monospace cell</h3>
+</div><div id="b2"><p>With <code>dc.Mono</code>, you can create a basic monospace cell.</p>
+</div><div id="b3"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Mono</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"I am a monospace Cell."</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b4"><pre><code>I am a monospace Cell.</code></pre></div><div id="b5"><p>Monospace cells support syntax highlighting with <code>devcard.WithHighlighting</code> option:</p>
+</div><div id="b6"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Mono</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">devcard</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">WithHighlighting</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"clojure"</span><span class="-devcard-hl-p">)</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-s">"(defn lookup [kw]\n  (get @*registry kw))"</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b7"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-p">(</span><span class="-devcard-hl-kd">defn </span><span class="-devcard-hl-nv">lookup</span> <span class="-devcard-hl-p">[</span><span class="-devcard-hl-nv">kw</span><span class="-devcard-hl-p">]</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-p">(</span><span class="-devcard-hl-nb">get </span><span class="-devcard-hl-o">@</span><span class="-devcard-hl-nv">*registry</span> <span class="-devcard-hl-nv">kw</span><span class="-devcard-hl-p">)</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b8"><p>The behavior of <code>dc.Append</code>
+ for a monospace cell is slightly different from a markdown cell: rather
+ than adding text to the end of the line, it appends a new line. I find 
+this behavior both intuitive and the most common use case.</p>
+</div><div id="b9"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Mono</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-k">for</span> <span class="-devcard-hl-nx">i</span> <span class="-devcard-hl-o">:=</span> <span class="-devcard-hl-k">range</span> <span class="-devcard-hl-mi">7</span> <span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Append</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"Processing item #"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">i</span><span class="-devcard-hl-o">+</span><span class="-devcard-hl-mi">1</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-s">"..."</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-p">}</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Append</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"Done."</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b10"><pre><code>Processing item #1...
+Processing item #2...
+Processing item #3...
+Processing item #4...
+Processing item #5...
+Processing item #6...
+Processing item #7...
+Done.</code></pre></div><div id="b11"><h3 id="value-cell">Value cell</h3>
+</div><div id="b12"><p>Value cells contain pretty-printed Go values:</p>
+</div><div id="b13"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">rect</span> <span class="-devcard-hl-o">:=</span> <span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Rectangle</span><span class="-devcard-hl-p">{</span><span class="-devcard-hl-p">}</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Val</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">v</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b14"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Rectangle</span><span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-nx">Min</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Point</span><span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">    <span class="-devcard-hl-nx">X</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-mi">0</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">    <span class="-devcard-hl-nx">Y</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-mi">0</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-nx">Max</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Point</span><span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">    <span class="-devcard-hl-nx">X</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-mi">0</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">    <span class="-devcard-hl-nx">Y</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-mi">0</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-p">}</span></span></span></code></pre></div><div id="b15"><h3 id="annotated-value-cell">Annotated value cell</h3>
+</div><div id="b16"><p>Annotated value cells are similar, but each value has a comment attached to it:</p>
+</div><div id="b17"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Aval</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"Small"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Rect</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-mi">5</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">5</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">10</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">10</span><span class="-devcard-hl-p">)</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-s">"Large"</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Rect</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-mi">10</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">10</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">60</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-mi">60</span><span class="-devcard-hl-p">)</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b18"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-c1">// Small
+</span></span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-c1"></span><span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Rectangle</span><span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-nx">Min</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Point</span><span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">    <span class="-devcard-hl-nx">X</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-mi">5</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">    <span class="-devcard-hl-nx">Y</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-mi">5</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-nx">Max</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Point</span><span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">    <span class="-devcard-hl-nx">X</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-mi">10</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">    <span class="-devcard-hl-nx">Y</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-mi">10</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-p">}</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-c1">// Large
+</span></span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-c1"></span><span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Rectangle</span><span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-nx">Min</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Point</span><span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">    <span class="-devcard-hl-nx">X</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-mi">10</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">    <span class="-devcard-hl-nx">Y</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-mi">10</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-nx">Max</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-nx">image</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Point</span><span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">    <span class="-devcard-hl-nx">X</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-mi">60</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">    <span class="-devcard-hl-nx">Y</span><span class="-devcard-hl-p">:</span> <span class="-devcard-hl-mi">60</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">  <span class="-devcard-hl-p">}</span><span class="-devcard-hl-p">,</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-p">}</span></span></span></code></pre></div><div id="b19"><h3 id="source-cell">Source cell</h3>
+</div><div id="b20"><p>Source cell contain source code of a function declared in the module:</p>
+</div><div id="b21"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Source</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"examples.code"</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b22"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-c1">// code appends a cell with Go code to the end of the devcard.
+</span></span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-c1"></span><span class="-devcard-hl-kd">func</span> <span class="-devcard-hl-nf">code</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">dc</span> <span class="-devcard-hl-o">*</span><span class="-devcard-hl-nx">devcard</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nx">Devcard</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">src</span> <span class="-devcard-hl-kt">string</span><span class="-devcard-hl-p">)</span> <span class="-devcard-hl-p">{</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl">	<span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Mono</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-nx">devcard</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">WithHighlighting</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"go"</span><span class="-devcard-hl-p">)</span><span class="-devcard-hl-p">,</span> <span class="-devcard-hl-nx">src</span><span class="-devcard-hl-p">)</span>
+</span></span><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-p">}</span></span></span></code></pre></div><div id="b23"><p>The name of the function should always be prefixed by the package it’s declared in.</p>
+</div><div id="b24"><p>Keep in mind that the function must be declared 
+in the same module as your devcard. If you try to reach outside of it, 
+you’ll get an error:</p>
+</div><div id="b25"><pre class="-devcard-hl-chroma"><code><span class="-devcard-hl-line"><span class="-devcard-hl-cl"><span class="-devcard-hl-nx">dc</span><span class="-devcard-hl-p">.</span><span class="-devcard-hl-nf">Source</span><span class="-devcard-hl-p">(</span><span class="-devcard-hl-s">"image.Rect"</span><span class="-devcard-hl-p">)</span></span></span></code></pre></div><div id="b26"><div class="err">SourceCell error</div><pre class="err">can't locate the source for image.Rect</pre></div></div>
+
+<div id="-devcard-stdout"></div>
+
+<div id="-devcard-stderr"></div>
+
+<div id="-devcard-navigation"><p>❬ <a href="DevcardTextCells.html">prev: Text cells</a> | <a href="list.html">top: examples</a> | <a href="DevcardImageCell.html">next: Image cell</a> ❭</p>
+</div>
+
+
+    
+
+
+</body></html>
