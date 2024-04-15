@@ -28,7 +28,9 @@ func DevcardAnatomy(dc *devcard.Devcard) {
 		"Here are the first three cells of this very devcard:")
 	dc.Mono(devcard.WithHighlighting("go"), sample())
 
-	dc.Md("The next four devcards describe various types of cells in detail.")
+	dc.Md("The next four devcards describe various types of cells in detail. ",
+		"You are encouraged to play with them as you go along, ",
+		"perhaps using [this devcard](/dc/devcard-examples/DevcardFoobar) as a scratch pad.")
 }
 
 func sample() string {
