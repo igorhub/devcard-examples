@@ -6,23 +6,23 @@ import (
 	"github.com/igorhub/devcard"
 )
 
-func DevcardImageCell(c *devcard.Devcard) {
-	c.SetTitle("3. Image cell")
+func DevcardImageCell(dc *devcard.Devcard) {
+	dc.SetTitle("3. Image cell")
 
-	c.Md("Image cells allow us to use images.")
+	dc.Md("Image cells allow us to use images.")
 
-	code(c, `c.Image("img/wallhaven-0qy15n.jpg")`)
+	code(dc, `dc.Image("img/wallhaven-0qy15n.jpg")`)
 
-	c.Image("img/wallhaven-0qy15n.jpg")
+	dc.Image("img/wallhaven-0qy15n.jpg")
 
-	c.Md("An image can be defined in two ways: by using a path to an image file, or by using an `image.Image` instance.")
-	c.Append("Similarly to annotated value cells, an annotation may be attached to an image:")
+	dc.Md("An image can be defined in two ways: by using a path to an image file, or by using an `image.Image` instance.")
+	dc.Append("Similarly to annotated value cells, an annotation may be attached to an image:")
 
-	code(c, `var img image.Image = stripes()
-c.Image("Path to an image", "img/red-pandas.jpg", "image.Image instance", img)`)
+	code(dc, `var img image.Image = stripes()
+dc.Image("Path to an image", "img/red-pandas.jpg", "image.Image instance", img)`)
 
 	var img image.Image = stripes()
-	c.Image("Path to an image", "img/red-pandas.jpg", "image.Image instance", img)
+	dc.Image("Path to an image", "img/red-pandas.jpg", "image.Image instance", img)
 }
 
 func stripes() image.Image {
