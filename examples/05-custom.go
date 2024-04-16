@@ -63,7 +63,7 @@ func (c *chartCell) Cast() devcard.Cell {
 }
 
 func DevcardCustomCell(dc *devcard.Devcard) {
-	dc.SetTitle("4. Custom cell")
+	dc.SetTitle("Custom cell")
 
 	dc.Md("Sometimes we want something more sophisticated than builtin cells.")
 	dc.Append("For that, we may use a custom cell.")

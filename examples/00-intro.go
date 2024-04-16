@@ -8,7 +8,7 @@ func DevcardIntro(dc *devcard.Devcard) {
 	dc.SetTitle("Getting started")
 
 	dc.Md("One good way to get started with devcards is to clone the `devcard-examples` repo and to tinker with it. ",
-		"This guide will tell you how to do it step by step.")
+		"This guide describes the process step by step.")
 
 	dc.Md("First, clone the repo:")
 	sh(dc, "git clone https://github.com/igorhub/devcard-examples")

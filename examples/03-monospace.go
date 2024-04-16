@@ -7,7 +7,7 @@ import (
 )
 
 func DevcardMonospacedCells(dc *devcard.Devcard) {
-	dc.SetTitle("2. Monospaced cells")
+	dc.SetTitle("Monospaced cells")
 
 	dc.Md("There are 4 types of monospace cells: `MonospaceCell`, `ValueCell`, `AnnotatedValueCell`, and `SourceCell`.")
 

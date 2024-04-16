@@ -7,7 +7,7 @@ import (
 )
 
 func DevcardImageCell(dc *devcard.Devcard) {
-	dc.SetTitle("3. Image cell")
+	dc.SetTitle("Image cell")
 
 	dc.Md("Image cells allow us to use images.")
 

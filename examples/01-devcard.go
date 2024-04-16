@@ -13,6 +13,7 @@ func DevcardAnatomy(dc *devcard.Devcard) {
 		"* It takes a single argument, which is a pointer to `devcard.Devcard`.\n",
 		"* It returns nothing.\n")
 
+	dc.Md("For example:")
 	dc.Mono(devcard.WithHighlighting("go"),
 		`func DevcardAnatomy(dc *devcard.Devcard) {
 	dc.SetTitle("Anatomy of a devcard")
@@ -23,9 +24,9 @@ func DevcardAnatomy(dc *devcard.Devcard) {
 	dc.Md("All devcard-producing functions defined in your code will be collected in the [devcards list](/dc/devcard-examples) in order of appearance.")
 
 	dc.Md("### Devcard's content")
-	dc.Md("A devcard is essentialy a list of cells. ",
+	dc.Md("A devcard is essentially a list of cells. ",
 		"Some cells are rendered as paragraphs of text, others as code blocks or images. ",
-		"Here are the first three cells of this very devcard:")
+		"Here are the first four cells of this very devcard:")
 	dc.Mono(devcard.WithHighlighting("go"), sample())
 
 	dc.Md("The next four devcards describe various types of cells in detail. ",
@@ -43,6 +44,7 @@ func sample() string {
 		"	\"* It takes a single argument, which is a pointer to `devcard.Devcard`.\\n\",\n" +
 		"	\"* It returns nothing.\\n\")\n" +
 		"	\n" +
+		"	dc.Md(\"For example:\")\n" +
 		"	dc.Mono(devcard.WithHighlighting(\"go\"),\n" +
 		"	`func DevcardAnatomy(dc *devcard.Devcard) {\n" +
 		"		dc.SetTitle(\"Anatomy of a devcard\")\n" +
