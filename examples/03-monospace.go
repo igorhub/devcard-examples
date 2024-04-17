@@ -23,8 +23,9 @@ func DevcardMonospacedCells(dc *devcard.Devcard) {
 
 	dc.Mono(devcard.WithHighlighting("clojure"), "(defn lookup [kw]\n  (get @*registry kw))")
 
-	dc.Md("The behavior of `dc.Append` for a monospace cell is slightly different from a markdown cell: rather than adding text to the end of the line, it appends a new line.")
-	dc.Append("I find this behavior both intuitive and the most common use case.")
+	dc.Md("The behavior of `dc.Append` for a monospace cell is slightly different from a markdown cell: ",
+		"rather than adding text to the end of the line, it appends a new line. ",
+		"I find this behavior both intuitive and the most common use case.")
 
 	code(dc, `dc.Mono()
 for i := range 7 {
@@ -63,8 +64,9 @@ dc.Append("Done.")`)
 	dc.Source("examples.code")
 
 	dc.Md("The name of the function should always be prefixed by the package it's declared in.")
-	dc.Md("Keep in mind that the function must be declared in the same module as your devcard.")
-	dc.Append("If you try to reach outside of it, you'll get an error:")
+
+	dc.Md("Keep in mind that the function must be declared in the same module as your devcard. ",
+		"If you try to reach outside of it, you'll get an error:")
 
 	code(dc, `dc.Source("image.Rect")`)
 	dc.Source("image.Rect")

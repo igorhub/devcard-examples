@@ -15,8 +15,9 @@ func DevcardImageCell(dc *devcard.Devcard) {
 
 	dc.Image("img/wallhaven-0qy15n.jpg")
 
-	dc.Md("An image can be defined in two ways: by using a path to an image file, or by using an `image.Image` instance.")
-	dc.Append("Similarly to annotated value cells, an annotation may be attached to an image:")
+	dc.Md("An image can be defined in two ways: ",
+		"by using a path to an image file, or by using an `image.Image` instance. ",
+		"Similarly to annotated value cells, an annotation may be attached to an image:")
 
 	code(dc, `var img image.Image = stripes()
 dc.Image("Path to an image", "img/red-pandas.jpg", "image.Image instance", img)`)

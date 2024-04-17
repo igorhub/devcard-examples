@@ -12,8 +12,8 @@ func code(dc *devcard.Devcard, src string) {
 func DevcardTextCells(dc *devcard.Devcard) {
 	dc.SetTitle("Text cells")
 
-	dc.Md(`A devcard is essentialy a list of cells. The most basic type of a cell
-is a markdown cell.`)
+	dc.Md("As said before, a devcard is essentially a list of cells. ",
+		"The most basic type of a cell is a markdown cell.")
 
 	dc.Md("### Markdown cell")
 	dc.Md("You can add a markdown cell to a devcard with the following code:")
