@@ -13,7 +13,7 @@ func DevcardMonospacedCells(dc *devcard.Devcard) {
 
 	// MonospaceCell
 	dc.Md("### Monospace cell")
-	dc.Md("With `dc.Mono` we create a basic monospace cell. ")
+	dc.Md("With `dc.Mono`, you can create a basic monospace cell. ")
 	dc.Mono(devcard.WithHighlighting("go"), `dc.Mono("I am a monospace Cell.")`)
 	dc.Mono("I am a monospace Cell.")
 
@@ -57,13 +57,13 @@ dc.Append("Done.")`)
 	// SourceCell
 	dc.Md("### Source cell")
 
-	dc.Md("Source cell contain source code of a function declared in our module:")
+	dc.Md("Source cell contain source code of a function declared in the module:")
 
 	code(dc, `dc.Source("examples.code")`)
 	dc.Source("examples.code")
 
 	dc.Md("The name of the function should always be prefixed by the package it's declared in.")
-	dc.Md("Keep in mind that the function must be declared in the same module as our devcard.")
+	dc.Md("Keep in mind that the function must be declared in the same module as your devcard.")
 	dc.Append("If you try to reach outside of it, you'll get an error:")
 
 	code(dc, `dc.Source("image.Rect")`)

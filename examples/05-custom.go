@@ -65,11 +65,11 @@ func (c *chartCell) Cast() devcard.Cell {
 func DevcardCustomCell(dc *devcard.Devcard) {
 	dc.SetTitle("Custom cell")
 
-	dc.Md("Sometimes we want something more sophisticated than builtin cells.")
-	dc.Append("For that, we may use a custom cell.")
+	dc.Md("Sometimes you may want something more sophisticated than builtin cells.")
+	dc.Append("For that, you can use a custom cell.")
 
-	dc.Md("Let's say we want a cell that shows a bar chart.")
-	dc.Append("We start by making a type for it:")
+	dc.Md("Suppose you want a cell that shows a bar chart.")
+	dc.Append("Let's start by making a type for it:")
 
 	// TODO: Change it to dc.Source call when it's ready.
 	code(dc, `type chartCell struct {
@@ -84,19 +84,19 @@ type datum struct {
 	value int
 }`)
 
-	dc.Md("Note that we embedded `devcard.CustomCell` in our struct.")
+	dc.Md("Note the embedded `devcard.CustomCell` in `chartCell`.")
 	dc.Append("It implements all three methods of the `Cell` interface: `Type`, `Append`, and `Erase`.")
 	dc.Append("The implementations of `Append` and `Erase` do nothing but panic when called;")
-	dc.Append("we need to provide our own implementations if we want to use `dc.Append` or `dc.Erase`.")
-	dc.Append("For our chart cell, this is not required—we're going to implement our own appending function:")
+	dc.Append("you need to provide your own implementations if you want to use `dc.Append` or `dc.Erase`.")
+	dc.Append("For this chart cell, this is not required—we're going to implement our own appending function:")
 	dc.Source("examples.addBar")
 
-	dc.Md("To render a custom cell, we first need to cast it into one of the builtin cells:")
+	dc.Md("To render a custom cell, it first needs to be casted it into one of the builtin cells:")
 	dc.Append("`HTMLCell`, `MarkdownCell`, `MonospaceCell`, `ValueCell`, `AnnotatedValueCell`, `ImageCell`, or `ErrorCell`.")
 	dc.Append("For that, we need to implement `Cast` method:")
 	dc.Source("examples.Cast")
 
-	dc.Md("Now our chart cell is ready. Let's add it to the devcard:")
+	dc.Md("Now the chart cell is ready. Let's add it to the devcard:")
 	code(dc, `chart := &chartCell{
 	tempDir: dc.TempDir,
 	data: []datum{
@@ -122,7 +122,7 @@ dc.Custom(chart)`)
 	dc.Custom(chart)
 
 	dc.Md("Since we opted out of imlementing `Append` method, we need to let the devcards app know when we're altering our cell.")
-	dc.Append("We do it by calling `dc.Update`:")
+	dc.Append("It's done by calling `dc.Update`:")
 
 	code(dc, `chart.add("Saturday", 38)
 chart.add("Sunday", 30)
