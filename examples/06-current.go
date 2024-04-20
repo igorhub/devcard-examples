@@ -11,8 +11,8 @@ func DevcardCurrent(dc *devcard.Devcard) {
 
 	dc.Md("It point to the same devcard as the entry function parameter `dc`, as you can see:")
 
-	code(dc, `dc.Aval("dc == devcard.Current()", dc == devcard.Current())`)
-	dc.Aval("dc == devcard.Current()", dc == devcard.Current())
+	code(dc, `dc.Ann("dc == devcard.Current()", dc == devcard.Current())`)
+	dc.Ann("dc == devcard.Current()", dc == devcard.Current())
 
 	dc.Md("The reason it's exposed is to make it available to any function in our program, no matter how deeply nested. ",
 		"This can be useful for occasional printf-style debugging or for some quick experiments.")

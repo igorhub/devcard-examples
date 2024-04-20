@@ -3,7 +3,7 @@ module github.com/igorhub/devcard-examples
 go 1.22.0
 
 require (
-	github.com/igorhub/devcard v0.3.0
+	github.com/igorhub/devcard v0.6.0
 	github.com/wcharczuk/go-chart/v2 v2.1.1
 )
 

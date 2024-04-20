@@ -52,8 +52,8 @@ dc.Append("Done.")`)
 	dc.Md("### Annotated value cell")
 	dc.Md("Annotated value cells are similar, but each value has a comment attached to it:")
 
-	code(dc, `dc.Aval("Small", image.Rect(5, 5, 10, 10), "Large", image.Rect(10, 10, 60, 60))`)
-	dc.Aval("Small", image.Rect(5, 5, 10, 10), "Large", image.Rect(10, 10, 60, 60))
+	code(dc, `dc.Ann("Small", image.Rect(5, 5, 10, 10), "Large", image.Rect(10, 10, 60, 60))`)
+	dc.Ann("Small", image.Rect(5, 5, 10, 10), "Large", image.Rect(10, 10, 60, 60))
 
 	// SourceCell
 	dc.Md("### Source cell")
