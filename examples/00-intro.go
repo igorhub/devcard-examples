@@ -20,7 +20,7 @@ func DevcardIntro(dc *devcard.Devcard) {
 	sh(dc, `cd devcard-examples
 devcards`)
 
-	dc.Md("Open up your browser, put it alongside your editor, and go to http://127.0.0.1:50051. ",
+	dc.Md("Put your browser alongside your editor, and go to http://127.0.0.1:50051. ",
 		"Click [devcard-examples](/dc/devcard-examples) and inspect the example cards one by one.")
 
 	dc.Md("Note: on the first run, the app will suggest to create an initial config file. ",

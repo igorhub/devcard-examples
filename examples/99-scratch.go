@@ -10,5 +10,5 @@ func DevcardFoobar(dc *devcard.Devcard) {
 	dc.Md("...")
 
 	dc.Md("Note the icon next to the devcard's title. ",
-		"Clicking it opens the devcard-producing function in your editor (defaults to vscode).")
+		"Clicking it opens the code for this devcard in your editor (defaults to vscode).")
 }
