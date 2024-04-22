@@ -8,7 +8,7 @@ func DevcardAnatomy(dc *devcard.Devcard) {
 	dc.SetTitle("Anatomy of a devcard")
 
 	dc.Md("A devcard is produced by running a devcard-producing function. ",
-		"Such a function must follow the following criteria:\n",
+		"Such a function must satisfy the following criteria:\n",
 		"* Its name begins with `Devcard`.\n",
 		"* It takes a single argument, which is a pointer to `devcard.Devcard`.\n",
 		"* It returns nothing.\n")
